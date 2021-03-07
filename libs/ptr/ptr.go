@@ -22,9 +22,11 @@ func GetOne(ip string, nameserver string) (string, error) {
 	}
 	println("FIRST: " + strings.TrimRight(names[0], ".") + "\n")
 
+	reversedIP, err := reverseIPv4(ip)
+
 	var record string
 	m := new(dns.Msg)
-	m.SetQuestion(ip, dns.TypePTR)
+	m.SetQuestion(dns.Fqdn(reversedIP), dns.TypePTR)
 	m.MsgHdr.RecursionDesired = true
 	m.SetEdns0(4096, true)
 	c := new(dns.Client)
@@ -40,4 +42,15 @@ func GetOne(ip string, nameserver string) (string, error) {
 		}
 	}
 	return record, nil
+}
+
+func reverseIPv4(ip string) (string, error) {
+	PTR, err := dns.ReverseAddr(ip)
+	if err != nil {
+		return "", err
+	}
+
+	reversed := strings.TrimSuffix(PTR, ".in-addr.arpa.")
+
+	return reversed, nil
 }
