@@ -52,5 +52,5 @@ func reverseIPv4(ip string) (string, error) {
 
 	// reversed := strings.TrimSuffix(PTR, ".in-addr.arpa.")
 
-	return reversed, nil
+	return PTR, nil
 }
