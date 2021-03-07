@@ -4,14 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/binaryfigments/dnstransfer/libs/axfr"
+	"github.com/binaryfigments/ipreport/libs/ptr"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
+
+type reportIP struct {
+	IP  string `json:",omitempty"`
+	PTR string `json:",omitempty"`
+}
 
 // bulkCmd represents the bulk command
 var bulkCmd = &cobra.Command{
@@ -34,16 +38,16 @@ var bulkCmd = &cobra.Command{
 		}
 		scanner := bufio.NewScanner(file)
 		scanner.Split(bufio.ScanLines)
-		var domains []string
+		var ipaddresses []string
 		for scanner.Scan() {
-			domains = append(domains, scanner.Text())
+			ipaddresses = append(ipaddresses, scanner.Text())
 		}
 		file.Close()
 
 		var wg sync.WaitGroup
-		for _, domain := range domains {
+		for _, ipaddress := range ipaddresses {
 			wg.Add(1)
-			go transferWorker(domain, nameserverFlag, &wg)
+			go transferWorker(ipaddress, nameserverFlag, &wg)
 		}
 		wg.Wait()
 	},
@@ -52,60 +56,24 @@ var bulkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(bulkCmd)
 	bulkCmd.Flags().String("file", "ips.txt", "File with IP addresses to use.")
-	// bulkCmd.PersistentFlags().String("foo", "", "A help for foo")
-	// bulkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func transferWorker(domain string, nameserverFlag string, wg *sync.WaitGroup) {
+func transferWorker(ip string, nameserverFlag string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// start here
-	// Get nameservers
-	var domainnameservers string
+
+	var ptrRecord string
 	err := retry(2, 2*time.Second, func() (err error) {
-		domainnameservers, err = ptr.getOne(domain, nameserverFlag)
+		ptrRecord, err = ptr.GetOne(ip, nameserverFlag)
 		return
 	})
-	// domainnameservers, err := ns.Get(domain, nameserverFlag)
+
 	if err != nil {
 		// TODO: build in a retry (in ns function above)
 		log.WithFields(logrus.Fields{
-			"error":        err,
-			"domain":       domain,
-			"nameserver":   nameserverFlag,
-			"transferable": false,
-		}).Warn("Get Nameservers")
+			"IP":  ip,
+			"PTR": ptrRecord,
+		}).Warn(err)
 	}
 
-	for _, domainnameserver := range domainnameservers {
-		// DNS RCODEs: http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6
-		axfrdata, err := axfr.Get(domain, domainnameserver)
-		if err != nil {
-			// Check if bad xfr code
-			if strings.Contains(err.Error(), "bad xfr rcode") {
-				log.WithFields(logrus.Fields{
-					"error":        err,
-					"domain":       domain,
-					"nameserver":   domainnameserver,
-					"transferable": false,
-				}).Info("Zone transfer failed")
-			}
-			// strings.Contains(err, "tcp"):
-			if strings.Contains(err.Error(), "red tcp") {
-				log.WithFields(logrus.Fields{
-					"error":        err,
-					"domain":       domain,
-					"nameserver":   domainnameserver,
-					"transferable": false,
-				}).Info("TCP timeout on port 53")
-			}
-		}
-		if len(axfrdata.Records) > 0 {
-			log.WithFields(logrus.Fields{
-				"error":        err,
-				"domain":       domain,
-				"nameserver":   domainnameserver,
-				"transferable": true,
-			}).Error("Zone can be transfered!")
-		}
-	}
 }
