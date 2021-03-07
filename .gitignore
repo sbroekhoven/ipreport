@@ -16,3 +16,6 @@ vendor/
 
 config.yaml
 ips.txt
+*.csv
+*.xlsx
+geoip/

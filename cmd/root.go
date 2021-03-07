@@ -35,7 +35,7 @@ func Execute() {
 func init() {
 	// Logging
 	log.SetOutput(os.Stdout)
-	// log.Out = os.Stdout
+	log.Out = os.Stdout
 	log.SetLevel(logrus.InfoLevel)
 
 	cobra.OnInitialize(initConfig)
