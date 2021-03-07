@@ -40,7 +40,7 @@ func init() {
 
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ipreport.yaml)")
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "nameserver", "", "what nameserver to use)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "nameserver", "8.8.8.8", "what nameserver to use)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
