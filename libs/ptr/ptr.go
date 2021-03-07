@@ -1,6 +1,11 @@
 package ptr
 
-import "github.com/miekg/dns"
+import (
+	"net"
+	"strings"
+
+	"github.com/miekg/dns"
+)
 
 /*
  * Get ptr
@@ -11,7 +16,7 @@ import "github.com/miekg/dns"
 func Get(domain string, nameserver string) ([]string, error) {
 	var answer []string
 	m := new(dns.Msg)
-	m.SetQuestion(dns.Fqdn(domain), dns.TypeNS)
+	m.SetQuestion(dns.Fqdn(domain), dns.TypePTR)
 	m.MsgHdr.RecursionDesired = true
 	// m.SetEdns0(4096, true)
 	c := new(dns.Client)
@@ -31,10 +36,18 @@ func Get(domain string, nameserver string) ([]string, error) {
 }
 
 // GetOne functuin to get one ptr record
-func GetOne(domain string, nameserver string) (string, error) {
-	var records []string
+func GetOne(ip string, nameserver string) (string, error) {
+	// var records []string
+
+	names, err := net.LookupAddr(ip)
+	if err != nil || len(names) == 0 {
+		return "", err
+	}
+	println(strings.TrimRight(names[0], "."))
+
+	var record string
 	m := new(dns.Msg)
-	m.SetQuestion(dns.Fqdn(domain), dns.TypeNS)
+	m.SetQuestion(dns.Fqdn(ip), dns.TypePTR)
 	m.MsgHdr.RecursionDesired = true
 	// m.SetEdns0(4096, true)
 	c := new(dns.Client)
@@ -44,11 +57,9 @@ func GetOne(domain string, nameserver string) (string, error) {
 	}
 	for _, rin := range in.Answer {
 		if r, ok := rin.(*dns.PTR); ok {
-			records = append(records, r.Ptr)
+			record = r.Ptr
+			println(r.Ptr)
 		}
 	}
-	if len(records) < 1 {
-		return "", err
-	}
-	return records[0], nil
+	return record, nil
 }

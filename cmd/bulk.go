@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/binaryfigments/ipreport/libs/ptr"
 	"github.com/sirupsen/logrus"
@@ -23,10 +22,14 @@ var bulkCmd = &cobra.Command{
 	Short: "Add information about an list of IP addresses and print CSV output.",
 	Long:  `Add information about an list of IP addresses and print CSV output.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("bulk called")
+		log.WithFields(logrus.Fields{}).Info("Starting")
 
 		// get nameserver from flags
 		nameserverFlag, _ := cmd.Flags().GetString("nameserver")
+		log.WithFields(logrus.Fields{
+			"nameserver": nameserverFlag,
+		}).Info("Nameserver Flag")
+
 		fileFlag, _ := cmd.Flags().GetString("file")
 
 		// open file
@@ -62,11 +65,15 @@ func transferWorker(ip string, nameserverFlag string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// start here
 
-	var ptrRecord string
-	err := retry(2, 2*time.Second, func() (err error) {
-		ptrRecord, err = ptr.GetOne(ip, nameserverFlag)
-		return
-	})
+	ptrRecord, err := ptr.GetOne(ip, nameserverFlag)
+	/*
+		var ptrRecord string
+		err := retry(2, 2*time.Second, func() (err error) {
+			ptrRecord, err = ptr.GetOne(ip, nameserverFlag)
+			return
+		})
+	*/
+	fmt.Printf("%s, %s\n", ip, ptrRecord)
 
 	if err != nil {
 		// TODO: build in a retry (in ns function above)
