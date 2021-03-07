@@ -24,9 +24,9 @@ func GetOne(ip string, nameserver string) (string, error) {
 
 	var record string
 	m := new(dns.Msg)
-	m.SetQuestion(dns.Fqdn(ip), dns.TypePTR)
+	m.SetQuestion(ip, dns.TypePTR)
 	m.MsgHdr.RecursionDesired = true
-	// m.SetEdns0(4096, true)
+	m.SetEdns0(4096, true)
 	c := new(dns.Client)
 	in, _, err := c.Exchange(m, nameserver+":53")
 	if err != nil {
@@ -35,7 +35,8 @@ func GetOne(ip string, nameserver string) (string, error) {
 	for _, rin := range in.Answer {
 		if r, ok := rin.(*dns.PTR); ok {
 			record = r.Ptr
-			println("BLAA" + r.Ptr + "NAME")
+			println("BLAA" + r.Ptr + " PTR\n")
+			println("BLAA" + r.Hdr.Name + " NAME\n")
 		}
 	}
 	return record, nil
