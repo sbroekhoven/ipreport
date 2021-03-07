@@ -19,3 +19,4 @@ ips.txt
 *.csv
 *.xlsx
 geoip/
+dist/
