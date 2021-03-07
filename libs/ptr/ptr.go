@@ -50,7 +50,7 @@ func reverseIPv4(ip string) (string, error) {
 		return "", err
 	}
 
-	reversed := strings.TrimSuffix(PTR, ".in-addr.arpa.")
+	// reversed := strings.TrimSuffix(PTR, ".in-addr.arpa.")
 
 	return reversed, nil
 }
