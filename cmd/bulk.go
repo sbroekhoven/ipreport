@@ -66,21 +66,13 @@ func transferWorker(ip string, nameserverFlag string, wg *sync.WaitGroup) {
 	// start here
 
 	ptrRecord, err := ptr.GetOne(ip, nameserverFlag)
-	/*
-		var ptrRecord string
-		err := retry(2, 2*time.Second, func() (err error) {
-			ptrRecord, err = ptr.GetOne(ip, nameserverFlag)
-			return
-		})
-	*/
-	fmt.Printf("%s, %s\n", ip, ptrRecord)
-
 	if err != nil {
-		// TODO: build in a retry (in ns function above)
+		// TODO: build in a retry (in PTR function above)
 		log.WithFields(logrus.Fields{
 			"IP":  ip,
 			"PTR": ptrRecord,
 		}).Warn(err)
 	}
+	fmt.Printf("%s, %s\n", ip, ptrRecord)
 
 }
