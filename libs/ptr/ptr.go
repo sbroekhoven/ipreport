@@ -23,7 +23,7 @@ func GetOne(ip string, nameserver string) (string, error) {
 	println("FIRST: " + strings.TrimRight(names[0], ".") + "\n")
 
 	reversedIP, err := reverseIPv4(ip)
-	println(reversedIP + "\n")
+	println("Reversed IP: " + reversedIP + "\n")
 
 	var record string
 	m := new(dns.Msg)
