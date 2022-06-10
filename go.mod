@@ -1,4 +1,4 @@
-module github.com/binaryfigments/ipreport
+module github.com/sbroekhoven/ipreport
 
 go 1.16
 

@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/binaryfigments/ipreport/libs/ptr"
 	"github.com/oschwald/geoip2-golang"
+	"github.com/sbroekhoven/ipreport/libs/ptr"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

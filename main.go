@@ -1,6 +1,6 @@
 package main
 
-import "github.com/binaryfigments/ipreport/cmd"
+import "github.com/sbroekhoven/ipreport/cmd"
 
 func main() {
 	cmd.Execute()
